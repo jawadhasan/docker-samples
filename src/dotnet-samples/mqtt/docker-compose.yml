@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+    
+  dotnetbroker:
+    image: dotnetbroker
+    ports:
+      - "1884:1884"     
+    environment:
+      - MY_EVN=dotnetbroker
+    networks:
+     - store-net        
+
+  dotnetpublisher:
+    image: dotnetpublisher
+    depends_on:
+      - dotnetbroker    
+    environment:
+      - MY_EVN=dotnetpublisher
+    networks:
+     - store-net      
+
+  dotnetsubscriber:
+    image: dotnetsubscriber
+    depends_on:
+      - dotnetbroker     
+    environment:
+      - MY_EVN=dotnetsubscriber
+    networks:
+     - store-net      
+
+networks:
+  store-net:     

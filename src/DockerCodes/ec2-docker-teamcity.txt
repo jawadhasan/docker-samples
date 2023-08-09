@@ -1,0 +1,147 @@
+Teamcity has a distributed architecture. User interact with server. Server accept the build requests and schedule them on agents.
+
+
+==================
+Amazon Linux 2
+>>public subnet
+>>public autoassign ip
+>>Name: teamcity-server
+=====================
+install and start docker
+>>sudo yum update
+>>sudo yum install docker
+>>sudo service docker start
+==========================
+add current user to docker group, so can run docker commands without sudo:
+
+>>sudo usermod -aG docker ec2-user
+-- re-login to EC2 for this to take effect
+
+=========================================
+Run TeamCity docker container 
+>> docker run -d -p 80:8111 jetbrains/teamcity-server
+-- see official repo for command to persist data and logs etc.
+>>access the team-city server using public ip of EC2 and configure it.
+-- we can use RDS for database of teamcity if we want.
+============================================
+
+Install Teamcity-Agent in the AWS Cloud
+- Based on the build (Go, Maven, Docker), we may need to install tools and packages on the build-agents.
+>>zip distributon method (or you can use docker)
+
+
+How to launch linux teamcity agent using zip method:
+
+>>Launch EC2 instance (Amazon Linux 2): t2 small 2 cores:
+  >>same VPC as teamcity server (preffered)
+  >>Try to use private subnet
+  >>Enable public-ip
+  >>Launch
+  >>name: teamcity-agent
+
+SSH to EC2
+>>sudo yum install java-1.8.0-openjdk (install java8)
+
+===
+Sever config:
+
+- goto server web page -> Agent -> Minimal zip file distribution
+->>right cick and copy the link:
+
+>>teamcityagent: 
+   >>mkdir agent
+    >>cd agent
+    >>wget [zip-distribution-link-from-above]
+    >>unzip buildAgent.zip (unzip the downloaded file)
+    >>cd conf
+    >>mv buildAgent.dist.properties buildAgent.properties (rename)
+
+      >>nano buildAgent.properties (edit the file)
+           >>serverURL = [http://10.0.1.116]  (coz agent and server are in same VPC)
+       
+----start the agent-
+
+agent>bin>>./agent.sh start (Start the script)
+
+[goto web teamcity-server]
+ >>unauthorized tab: we will see a new agent>>Authorize
+-----------------------------
+- to save cost, we may want t stop this agent during off hours and start it during the office hours.
+
+- we also want this agent to automatically connect to teamcity-server on startup.
+
+
+we can do this by creating a demon or unit file  managed by systemD.
+
+agent>>cd /etc/systemd/system
+--create a new systemD file for teamcity-agent service.
+  >>nano teamcityagent.service
+   [Unit]
+   Descriptin=TeamCity Build Agent
+   After=network.target
+   
+    [Service]
+    Type=oneshot
+    ExecStart=/home/ec2-user/agent/bin/agent.sh start
+    ExecStop=/home/ec2/agent/bin/agent.sh stop
+    RemainAfterExit=yes
+
+      [Install]
+      WantedBy=default.target
+
+
+-UnitSection: About this configuration file.
+-Service Section: Commands to start and stop the agent.
+-Install section: Tell SystemD when to start the service.
+
+Save this file and set the permission the execute:
+>>sudo chmod +x teamcityagent.service
+>>sudo systemctrl enable teamcityagent (enable the service)
+
+[Test: restart the agent EC2 instance from aws console]
+
+-----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+[Agent's AMI Creation]
+
+automate agent creation process:
+
+>>ssh to teamcity-agent
+>>edit /agent/conf/buildAgent.properties
+     >>remove the name= (leave it empty) + save
+
+>>AWS Console>>select TeamCity-Agent EC2 >>ACTIONS>> Image & Templates >>create image (name: teamcity-agent) :: Create Image
+
+>>in the meantime you can start the existing agent 
+   agent>>sudo systemctrl start teamcityagent
+
+Now we can use this image to launch new instances.
+
+===========================================
+Cloud Profile setting
+A teamcity setting that automate the start and stop of teamcity agents in the cloud (see more)
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+

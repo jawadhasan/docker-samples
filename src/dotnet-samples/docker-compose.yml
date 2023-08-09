@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  accountingbook:
+    image: jawadhasanshani/accountingbook:v2
+    ports:
+        - "5000:5000"
+    build:
+      context: .
+      dockerfile: ./docker/web/Dockerfile
+    depends_on:
+      - accounting-db   
+  accounting-db:
+    image: jawadhasanshani/accountingbookdb:v2
+    container_name: accounting-db  
+    ports:
+        - "5432:5432"
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile

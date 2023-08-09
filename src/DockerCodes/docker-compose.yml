@@ -1,0 +1,30 @@
+version: '3.3'
+
+services:
+    
+  db:
+    image: accountingbookdb
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile     
+    environment:
+      - MY_EVN=accountingbookdb
+    networks:
+     - store-net   
+
+  web:
+    image: accountingbook
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile 
+    depends_on:
+      - db    
+    ports:
+      - "5000:5000"       
+    environment:
+      - MY_EVN=accountingbook
+    networks:
+     - store-net 
+
+networks:
+  store-net:     
