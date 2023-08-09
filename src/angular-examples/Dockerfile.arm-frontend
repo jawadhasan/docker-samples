@@ -1,0 +1,40 @@
+# Stage 1: Compile and Build angular codebase
+
+# Use official node image as the base image
+FROM node:latest as build-stage
+
+# Set the working directory inside container
+WORKDIR /app
+
+COPY package*.json /app/
+
+# Install all the dependencies
+RUN npm ci
+
+# Add the source code to app
+COPY ./ /app/
+
+
+# Generate the build of the application - /app/dist/ will contain build output
+RUN npm run build
+
+
+###########################################################
+#Create a new Builder
+# docker buildx create --name mulcpubuilder
+
+#Switch to your builder
+# docker buildx use mulcpubuilder
+
+# check it
+# docker buildx inspect --bootstrap
+
+#and now build the image with the following command
+# docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t username/app-image:latest --push .
+
+
+
+# docker buildx build --platform linux/arm64 -t cpf-hmi-arm:latest --output type=docker -f Dockerfile.arm-frontend .
+# docker run -it --platform linux/arm64 cpf-hmi-arm
+# docker exec -it 8a3499db5b51 /bin/bash
+# docker cp -r 8a3499db5b51:/app/dist           C:/buildoutput/dist

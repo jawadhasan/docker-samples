@@ -1,0 +1,24 @@
+FROM node:10-buster-slim as build
+
+RUN mkdir -p /app
+WORKDIR /app
+
+COPY ./ ./
+RUN npm ci && \
+    npm run build
+
+FROM debian:bullseye-slim
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get -y install --no-install-recommends \
+       lighttpd
+
+COPY ./lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf
+COPY ./lighttpd/entrypoint.sh ./
+RUN mkdir -p /app
+COPY --from=build /app/dist /var/www/html
+#ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+
+
+#docker buildx create --use
+#docker buildx build  --platform=linux/amd64,linux/arm64 -t ${DEVCONTAINER_IMAGE_TAG} --push -f Dockerfile.web-frontend .
