@@ -31,6 +31,12 @@ Linux command to create a file
 - `docker run --name accountingbookdb-docker -e PGDATA=/tmp -d -p 5433:5432 accountingbookdb`
 - `docker run --name accountingbookdb-docker -e PGDATA=/tmp -d -p 5433:5432 -v ${PWD}:/var/lib/postgresql/data accountingbookdb`
 
+## ElasticSearch
+
+- `docker container run -d -p 9200:9200 -p 9300:9300 -m 3G --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch`
+- `docker container run -d -p 9200:9200 -p 9300:9300 --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch`
+- `http://localhost:9200/dashboard/_search?pretty=true&q=:`
+
 ## Retag and push to dockerhub
 
 - `docker tag signalrbasicsetup jawadhasanshani/signalrbasicsetup`
