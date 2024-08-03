@@ -2,5 +2,5 @@
 FROM ubuntu
 RUN apt-get update && apt-get install nano
 
-#docker image build -t ubuntu-with-nano .
-#docker run --name ubuntu-with-nano ubuntu-with-nano
+#docker image build -t ubuntu-with-nano -f Dockerfile.ubuntu-1 .
+#docker run -it --name ubuntu-with-nano ubuntu-with-nano /bin/bash

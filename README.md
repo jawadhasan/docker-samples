@@ -4,8 +4,8 @@
 
 Dockerfile for ubuntu
 
-- `docker image build -t ubuntu-with-nano .`
-- `docker run --name ubuntu-with-nano ubuntu-with-nano`
+- `docker image build -t ubuntu-with-nano -f Dockerfile.ubuntu-1 .`
+- `docker run -it --name ubuntu-with-nano ubuntu-with-nano /bin/bash`
 
 ## NodeJS Example
 
@@ -16,6 +16,9 @@ Dockerfile for ubuntu
 
 - `docker image build -t ubuntu-with-volume -f ./Dockerfile .`
 - `docker run -it --rm ubuntu-with-volume`
+
+## exec Example
+- `docker exec -it 8a3499db5b51 /bin/bash`
 
 Linux command to create a file
 - `touch /v1/sample2.txt`
